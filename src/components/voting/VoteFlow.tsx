@@ -47,7 +47,10 @@ export default function VoteFlow({ code, onDone }: Props) {
       toast.error("Silakan pilih satu nominasi");
       return;
     }
-    if (step < categories.length - 1) setStep(step + 1);
+    if (step < categories.length - 1) {
+      setStep(step + 1);
+      setSearch("");
+    }
   };
 
   const submit = async () => {
