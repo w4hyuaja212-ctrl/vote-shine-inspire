@@ -7,6 +7,7 @@ import { LogOut, Sparkles } from "lucide-react";
 import CandidatesManager from "@/components/admin/CandidatesManager";
 import TokensManager from "@/components/admin/TokensManager";
 import ResultsView from "@/components/admin/ResultsView";
+import VotersView from "@/components/admin/VotersView";
 
 export default function AdminDashboard() {
   const nav = useNavigate();
@@ -84,12 +85,14 @@ export default function AdminDashboard() {
 
       <main className="container mx-auto px-6 py-8">
         <Tabs defaultValue="results">
-          <TabsList className="mb-6">
+          <TabsList className="mb-6 flex-wrap h-auto">
             <TabsTrigger value="results">Hasil Voting</TabsTrigger>
+            <TabsTrigger value="voters">Rekap Pemilih</TabsTrigger>
             <TabsTrigger value="candidates">Nominasi</TabsTrigger>
             <TabsTrigger value="tokens">Kode Voting</TabsTrigger>
           </TabsList>
           <TabsContent value="results"><ResultsView /></TabsContent>
+          <TabsContent value="voters"><VotersView /></TabsContent>
           <TabsContent value="candidates"><CandidatesManager /></TabsContent>
           <TabsContent value="tokens"><TokensManager /></TabsContent>
         </Tabs>
