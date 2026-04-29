@@ -6,40 +6,35 @@ import { Check, ChevronLeft, ChevronRight, Award, Sparkles, User } from "lucide-
 
 interface Category { id: string; name: string; description: string | null; display_order: number; }
 interface Candidate { id: string; name: string; role_type: string; photo_url: string | null; }
-interface CandCat { candidate_id: string; category_id: string; }
-
 interface Props { code: string; onDone: () => void; }
 
 export default function VoteFlow({ code, onDone }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [links, setLinks] = useState<CandCat[]>([]);
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     (async () => {
-      const [cats, cands, lks] = await Promise.all([
+      const [cats, cands] = await Promise.all([
         supabase.from("categories").select("*").order("display_order"),
         supabase.from("candidates").select("*").order("name"),
-        supabase.from("candidate_categories").select("*"),
       ]);
       setCategories(cats.data || []);
       setCandidates(cands.data || []);
-      setLinks(lks.data || []);
       setLoading(false);
     })();
   }, []);
 
   const currentCat = categories[step];
-  const eligibleIds = useMemo(
-    () => new Set(links.filter((l) => l.category_id === currentCat?.id).map((l) => l.candidate_id)),
-    [links, currentCat]
+  const eligible = useMemo(
+    () => candidates.filter((c) => c.name.toLowerCase().includes(search.toLowerCase())),
+    [candidates, search]
   );
-  const eligible = candidates.filter((c) => eligibleIds.has(c.id));
 
   const select = (cid: string) => {
     if (!currentCat) return;
@@ -52,7 +47,10 @@ export default function VoteFlow({ code, onDone }: Props) {
       toast.error("Silakan pilih satu nominasi");
       return;
     }
-    if (step < categories.length - 1) setStep(step + 1);
+    if (step < categories.length - 1) {
+      setStep(step + 1);
+      setSearch("");
+    }
   };
 
   const submit = async () => {
@@ -139,9 +137,24 @@ export default function VoteFlow({ code, onDone }: Props) {
           )}
         </div>
 
+        <div className="max-w-md mx-auto mb-6">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="🔍 Cari nama nominasi..."
+            className="w-full h-11 px-4 rounded-lg border border-input bg-card text-foreground"
+          />
+          {selections[currentCat.id] && (
+            <p className="text-xs text-center mt-2 text-accent-foreground bg-accent/20 rounded px-2 py-1">
+              ✓ Terpilih: <b>{candidates.find((c) => c.id === selections[currentCat.id])?.name}</b>
+            </p>
+          )}
+        </div>
+
         {eligible.length === 0 ? (
           <div className="text-center p-12 rounded-xl bg-card border border-border">
-            <p className="text-muted-foreground">Belum ada nominasi untuk kategori ini.</p>
+            <p className="text-muted-foreground">Tidak ada nominasi yang cocok.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
