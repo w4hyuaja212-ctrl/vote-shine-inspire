@@ -9,11 +9,32 @@ import TokensManager from "@/components/admin/TokensManager";
 import ResultsView from "@/components/admin/ResultsView";
 import VotersView from "@/components/admin/VotersView";
 
+const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+async function checkAdminRole(userId: string) {
+  let lastError = "";
+
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const { data, error } = await supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
+
+    if (!error) return { isAdmin: !!data, error: "" };
+
+    lastError = error.message;
+    await wait(700 * (attempt + 1));
+  }
+
+  return { isAdmin: false, error: lastError || "Gagal memeriksa role admin." };
+}
+
 export default function AdminDashboard() {
   const nav = useNavigate();
   const [checking, setChecking] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [email, setEmail] = useState("");
+  const [accessError, setAccessError] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -24,14 +45,10 @@ export default function AdminDashboard() {
         return;
       }
       setEmail(session.user.email || "");
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", session.user.id)
-        .eq("role", "admin")
-        .maybeSingle();
+      const { isAdmin: hasAdminAccess, error } = await checkAdminRole(session.user.id);
       if (!mounted) return;
-      setIsAdmin(!!data);
+      setIsAdmin(hasAdminAccess);
+      setAccessError(error);
       setChecking(false);
     };
 
@@ -47,6 +64,20 @@ export default function AdminDashboard() {
 
   if (checking) {
     return <div className="min-h-screen flex items-center justify-center bg-background">Memeriksa akses...</div>;
+  }
+
+  if (accessError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-6">
+        <div className="max-w-md text-center bg-card p-8 rounded-2xl shadow-elegant border border-border">
+          <h2 className="font-display text-3xl mb-3">Sedang Memeriksa Ulang</h2>
+          <p className="text-muted-foreground mb-6">
+            Backend sedang menyiapkan akses admin. Silakan muat ulang halaman ini sebentar lagi.
+          </p>
+          <Button onClick={() => window.location.reload()} variant="hero">Muat Ulang</Button>
+        </div>
+      </div>
+    );
   }
 
   if (!isAdmin) {
