@@ -51,7 +51,7 @@ export default function VotersView() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Stat label="Total Kode" value={tokens.length} />
         <Stat label="Sudah Memilih" value={usedCount} accent />
         <Stat label="Belum Memilih" value={tokens.length - usedCount} />
@@ -62,7 +62,7 @@ export default function VotersView() {
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari kode atau label..." className="pl-9" />
         </div>
-        <div className="flex gap-1 bg-muted rounded-md p-1">
+        <div className="grid grid-cols-3 gap-1 bg-muted rounded-md p-1 sm:flex">
           {(["all", "used", "unused"] as const).map((k) => (
             <button
               key={k}
@@ -87,15 +87,15 @@ export default function VotersView() {
                 <div key={t.id}>
                   <button
                     onClick={() => setOpenId(isOpen ? null : t.id)}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 text-left"
+                    className="w-full flex items-center gap-3 px-3 sm:px-4 py-3 hover:bg-muted/50 text-left"
                   >
                     {t.used ? (
                       isOpen ? <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
                         : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                     ) : <span className="w-4 shrink-0" />}
-                    <span className="font-mono font-semibold tracking-wider">{t.code}</span>
+                    <span className="font-mono font-semibold tracking-wider text-sm sm:text-base">{t.code}</span>
                     {t.label && <span className="text-sm text-muted-foreground truncate">— {t.label}</span>}
-                    <span className="ml-auto flex items-center gap-3 text-xs">
+                    <span className="ml-auto flex items-center gap-2 sm:gap-3 text-xs">
                       {t.used ? (
                         <>
                           <span className="text-muted-foreground hidden sm:inline">
@@ -113,7 +113,7 @@ export default function VotersView() {
                     </span>
                   </button>
                   {isOpen && t.used && (
-                    <div className="px-4 pb-4 pl-11 bg-muted/30">
+                    <div className="px-3 sm:px-4 pb-4 sm:pl-11 bg-muted/30">
                       <p className="text-xs text-muted-foreground mb-2">
                         Memilih pada {t.used_at ? new Date(t.used_at).toLocaleString("id-ID") : "-"}
                       </p>
@@ -121,9 +121,9 @@ export default function VotersView() {
                         {cats.map((c) => {
                           const v = tokenVotes.find((x) => x.category_id === c.id);
                           return (
-                            <div key={c.id} className="flex justify-between gap-2 text-sm bg-background rounded px-3 py-2 border border-border">
+                            <div key={c.id} className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-2 text-sm bg-background rounded px-3 py-2 border border-border">
                               <span className="text-muted-foreground">{c.name}</span>
-                              <span className="font-medium text-right">
+                              <span className="font-medium sm:text-right">
                                 {v ? candMap.get(v.candidate_id) || "-" : <em className="text-muted-foreground">tidak ada</em>}
                               </span>
                             </div>

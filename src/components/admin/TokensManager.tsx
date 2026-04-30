@@ -75,13 +75,13 @@ export default function TokensManager() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Stat label="Total" value={tokens.length} />
         <Stat label="Belum digunakan" value={unused} accent />
         <Stat label="Sudah digunakan" value={used} />
       </div>
 
-      <div className="bg-card p-5 rounded-xl border border-border shadow-soft">
+      <div className="bg-card p-4 sm:p-5 rounded-xl border border-border shadow-soft">
         <h3 className="font-display text-xl mb-3">Generate Kode Baru</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
           <div>
@@ -92,30 +92,30 @@ export default function TokensManager() {
             <Label>Label (opsional)</Label>
             <Input value={prefix} onChange={(e) => setPrefix(e.target.value)} placeholder="cth: Kelas 7A" />
           </div>
-          <Button onClick={generate} variant="hero"><Plus className="w-4 h-4 mr-1" /> Generate</Button>
+          <Button onClick={generate} variant="hero" className="w-full"><Plus className="w-4 h-4 mr-1" /> Generate</Button>
         </div>
       </div>
 
-      <div className="bg-card p-5 rounded-xl border border-border shadow-soft">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div className="flex gap-1">
+      <div className="bg-card p-4 sm:p-5 rounded-xl border border-border shadow-soft">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 mb-4">
+          <div className="grid grid-cols-3 gap-1 sm:flex">
             {(["all", "unused", "used"] as const).map((f) => (
               <Button key={f} size="sm" variant={filter === f ? "default" : "outline"} onClick={() => setFilter(f)}>
                 {f === "all" ? "Semua" : f === "unused" ? "Belum" : "Terpakai"}
               </Button>
             ))}
           </div>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 sm:flex gap-2">
             <Button size="sm" variant="outline" onClick={copyAll}><Copy className="w-3 h-3 mr-1" /> Salin</Button>
             <Button size="sm" variant="outline" onClick={downloadCSV}><Download className="w-3 h-3 mr-1" /> CSV</Button>
-            <Button size="sm" variant="outline" onClick={() => removeAll(true)}>Hapus Terpakai</Button>
+            <Button size="sm" variant="outline" onClick={() => removeAll(true)} className="col-span-2 sm:col-span-1">Hapus Terpakai</Button>
           </div>
         </div>
 
         {filtered.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">Belum ada kode</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-[500px] overflow-y-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 max-h-[500px] overflow-y-auto">
             {filtered.map((t) => (
               <div key={t.id} className={`p-3 rounded-lg border flex items-center justify-between gap-2 ${t.used ? "bg-muted border-border opacity-60" : "bg-background border-accent/30"}`}>
                 <div className="min-w-0">
