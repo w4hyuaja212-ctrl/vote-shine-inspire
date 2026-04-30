@@ -15,12 +15,14 @@ async function checkAdminRole(userId: string) {
   let lastError = "";
 
   for (let attempt = 0; attempt < 5; attempt += 1) {
-    const { data, error } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    });
+    const { data, error } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
 
-    if (!error) return { isAdmin: !!data, error: "" };
+    if (!error) return { isAdmin: data?.role === "admin", error: "" };
 
     lastError = error.message;
     await wait(700 * (attempt + 1));
